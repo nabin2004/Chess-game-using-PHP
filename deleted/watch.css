@@ -1,0 +1,13 @@
+.madhya-right{
+    display: flex;
+}
+
+.title{
+    font-family: "Goldman";
+    font-size:50px;
+    padding-left: 40px;
+}
+
+iframe{
+    padding: 50px;
+}
