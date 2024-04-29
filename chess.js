@@ -93,11 +93,14 @@ function DragStartHere(event) {
         draggedItem.style.opacity = '1';
     }, 0);
     previousPosition[draggedItem.id] = draggedItem.parentElement.id;
+    draggedItem.parentElement.classList.remove('highlight');
 }
 
 function DragOverhere(event) {
     event.preventDefault();
+
 }
+
 
 function DropHere(event) {
     event.preventDefault();
@@ -105,6 +108,9 @@ function DropHere(event) {
     var draggedItem = document.getElementById(draggedItemId);
     var parentItem = draggedItem.parentElement;
     var dropZone = event.target;
+
+    //clear highlights
+
 
     // Check if it's the current player's turn
     if ((isWhiteTurn && draggedItem.id.includes('White')) || (!isWhiteTurn && draggedItem.id.includes('Black'))) {
@@ -130,14 +136,19 @@ function DropHere(event) {
 
 
 function isDropZoneEmptyOrSamePlayer(dropZone, draggedItemId) {
-    if (dropZone.children.length === 0) {
+    if (dropZone && dropZone.children.length > 0) {
+        var occupyingPieceId = dropZone.children[0].id;
+        if ((draggedItemId.includes('White') && occupyingPieceId.includes('White')) || 
+            (draggedItemId.includes('Black') && occupyingPieceId.includes('Black'))) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
         return true;
     }
-
-    var occupyingPieceId = dropZone.children[0].id;
-
-    return !isOpponentPiece(occupyingPieceId, draggedItemId);
 }
+
 
 function isValidMove(pieceId, dropZoneId, parentZoneId) {
     var str_pieceId = String(pieceId);
@@ -184,40 +195,28 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
 }
 
 function returnToPreviousPosition(draggedItem, dropZoneItem) {
-    console.log('returning to previous position');
-    console.log('ROI draggedItem', draggedItem);
-    console.log('ROI dropZoneItem', dropZoneItem);
-    console.log('Delete', dropZoneItem.id);
-    console.log('Delete', dropZoneItem.children.length);
-
     if (dropZoneItem) {
         var dropImgId = dropZoneItem.id;
         var draggedImgId = draggedItem.id;
-        console.log("dropImgId", dropImgId, "draggedImgId", draggedImgId);
-        if ((dropImgId.includes('Black') && draggedImgId.includes('White')) || (dropImgId.includes('White') && draggedImgId.includes('Black'))) {
+        if ((dropImgId.includes('Black') && draggedImgId.includes('White')) || 
+            (dropImgId.includes('White') && draggedImgId.includes('Black'))) {
             if(dropImgId.includes('King')){
-                alert('Check'); // THis is shit code but I am just like thinking and I dont want to remove this coz it will destroy my chain of thought
+                alert('Check');
                 window.location.reload();
             }
             dropZoneItem.parentNode.appendChild(draggedItem);
             dropZoneItem.parentNode.removeChild(dropZoneItem);
             var audio = new Audio('sounds/capture.mp3');
             audio.play();
-            dropZoneItem.style.opacity = '1';
-            console.log('Drop ');
-     
+            draggedItem.style.opacity = '1';
         }
-    }else{
-    // Append the dragged item to its previous position
-    var previousZoneId = previousPosition[draggedItem.id];
-    document.getElementById(previousZoneId).appendChild(draggedItem);
-    draggedItem.style.opacity = '1';
-    console.log('Invalid moveddd');
-    // var audio = new Audio('sounds/wrong.mp3');
-    // audio.play();
+    } else {
+        var previousZoneId = previousPosition[draggedItem.id];
+        document.getElementById(previousZoneId).appendChild(draggedItem);
+        draggedItem.style.opacity = '1';
+        console.log('Invalid move');
     }
 }
-
 
 function checkDeathLogic(draggedItem, dropZone, parentItem) {
     console.log('death logic');
@@ -246,15 +245,28 @@ function promotionLogic() {
     //code for promotion logic
 }
 
-function highlightValidMoves(pieceId, parentZoneId) {
-    hightlightLogic();
-    var dropZones = document.querySelectorAll('.drop-zone');
-    dropZones.forEach(function(dropZone) {
-        if (isValidMove(pieceId, dropZone.id, parentZoneId) && isDropZoneEmptyOrSamePlayer(dropZone, pieceId)) {
-            dropZone.classList.add('highlight');
-        }
-    });
-}
+// function highlightValidMoves(pieceId, parentZoneId) {
+//     hightlightLogic();
+//     var dropZones = document.querySelectorAll('.drop-zone');
+//     var highlightedZones = [];
+
+//     // Highlight valid moves and store them in an array
+//     dropZones.forEach(function(dropZone) {
+//         if (isValidMove(pieceId, dropZone.id, parentZoneId) && isDropZoneEmptyOrSamePlayer(dropZone, pieceId)) {
+//             dropZone.classList.add('highlight');
+//             highlightedZones.push(dropZone);
+//         }
+//     });
+
+//     // Show only the last two highlights
+//     if (highlightedZones.length > 2) {
+//         var zonesToRemove = highlightedZones.slice(0, highlightedZones.length - 2);
+//         zonesToRemove.forEach(function(zone) {
+//             zone.classList.remove('highlight');
+//         });
+//     }
+// }
+
 
 // Function to remove highlights from all boxes
 function hightlightLogic() {

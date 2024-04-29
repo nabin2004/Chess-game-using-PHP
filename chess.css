@@ -2,7 +2,9 @@
 background-color: #FCEAC7; */
 
 
-
+.drag-over{
+    background-color: #FFD700;
+}
 
 .square{
     background-color:#FCEAC7;
@@ -37,11 +39,6 @@ background-color: #FCEAC7; */
 img{
     width: 100%;
     user-select: none;
-}
-
-.highlight{
-    background-color: #FFD700 !important;
-
 }
 
 .timer {
@@ -79,4 +76,9 @@ img{
     border-radius: 5px;
     font-family: 'Courier New', Courier, monospace;
     
+}
+
+.highlight{
+    background-color: #FFD700  !important;
+
 }
