@@ -10,12 +10,18 @@
 </head>
 <body>
 <div class="chess">
+
+<div class="timer">
+        <div id="white-timer"> 00:00 </div>
+        <div id="black-timer"> 00:00 </div>
+    </div>
+
 <div class="main_container">
 <!--File is a column in chess and chess player call column as FILE-->
 <!-- This is file A -->
 <div class="file-a files">
-<div class="square" id="a8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"><img alt="" draggable="true" onclick="handleClick(event)" id="LBlackrook" ondragstart="DragStartHere(event)" src="./images/pieces/black/rook.png"/></div>
-<div class="square" id="b8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"><img alt="" onclick="handleClick(event)" class='Blackpawn8'  draggable="true" id="Blackpawn18" ondragstart="DragStartHere(event)" src="./images/pieces/black/pawn.png"/></div>
+<div class="square" id="a8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"><img alt="" onclick="handleClick(event)" id="LBlackrook" ondragstart="DragStartHere(event)" src="./images/pieces/black/rook.png"/></div>
+<div class="square" id="b8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"><img alt="" onclick="handleClick(event)" class='Blackpawn8' id="Blackpawn18" ondragstart="DragStartHere(event)" src="./images/pieces/black/pawn.png"/></div>
 <div class="square" id="c8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"></div>
 <div class="square" id="d8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"></div>
 <div class="square" id="e8" ondragover="DragOverhere(event)" ondrop="DropHere(event)"></div>

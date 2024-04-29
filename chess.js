@@ -8,6 +8,58 @@ fetch(url, {
     }
 });
 
+let whiteTimer = 0;
+let blackTimer = 0;
+let whiteTimerInterval;
+let blackTimerInterval;
+let isWhiteTurn = true;
+
+function updateTimer(timer, elementId){
+    let minutes = Math.floor(timer / 60);
+    let seconds = timer % 60;
+    document.getElementById(elementId).innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function startWhiteTimer() {
+    whiteInterval = setInterval(() => {
+        whiteTimer++;
+        updateTimer(whiteTimer, 'white-timer');
+    }, 1000);
+}
+
+function startBlackTimer() {
+    blackInterval = setInterval(() => {
+        blackTimer++;
+        updateTimer(blackTimer, 'black-timer');
+    }, 1000);
+}
+
+function stopWhiteTimer() {
+    clearInterval(whiteInterval);
+}
+
+function stopBlackTimer() {
+    clearInterval(blackInterval);
+}
+
+function startGame() {
+    startWhiteTimer();
+}
+
+function switchTurns() {
+    isWhiteTurn = !isWhiteTurn;
+    if (isWhiteTurn) {
+        startWhiteTimer();
+        stopBlackTimer();
+    }else{
+        startBlackTimer();
+        stopWhiteTimer();
+    }
+}
+
+startGame(); 
+
+
 
 function handleClick(event) {
     console.log("Handle Click");
@@ -53,22 +105,29 @@ function DropHere(event) {
     var draggedItem = document.getElementById(draggedItemId);
     var parentItem = draggedItem.parentElement;
     var dropZone = event.target;
-    
-   
+
+    // Check if it's the current player's turn
+    if ((isWhiteTurn && draggedItem.id.includes('White')) || (!isWhiteTurn && draggedItem.id.includes('Black'))) {
+        console.log('It is not your turn to move.');
+        returnToPreviousPosition(draggedItem, dropZone);
+        return; // Stop further execution
+    }
 
     if (dropZone === document.getElementById(previousPosition[draggedItemId])) {
         return true;
     }
-    if (isValidMove(draggedItemId, dropZone.id, parentItem.id)) {
-            dropZone.appendChild(draggedItem);
-            draggedItem.style.opacity = '1';
-            var move = new Audio('sounds/move-self.mp3');
-            move.play();
 
+    if (isValidMove(draggedItemId, dropZone.id, parentItem.id)) {
+        dropZone.appendChild(draggedItem);
+        draggedItem.style.opacity = '1';
+        var move = new Audio('sounds/move-self.mp3');
+        move.play();
+        switchTurns();
     } else {
         returnToPreviousPosition(draggedItem, dropZone);
     }
 }
+
 
 function isDropZoneEmptyOrSamePlayer(dropZone, draggedItemId) {
     if (dropZone.children.length === 0) {

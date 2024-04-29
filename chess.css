@@ -2,6 +2,8 @@
 background-color: #FCEAC7; */
 
 
+
+
 .square{
     background-color:#FCEAC7;
     width: 70px;
@@ -40,4 +42,41 @@ img{
 .highlight{
     background-color: #FFD700 !important;
 
+}
+
+.timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: black;
+    margin-right: 1rem;
+
+}
+
+#white-timer{
+    background-color: #FCEAC7;
+    color: #008B8B;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+#black-timer{
+    background-color: #008B8B;
+    color: #FCEAC7;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+#white-timer, #black-timer {
+    padding: 20px 20px;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+    
 }
