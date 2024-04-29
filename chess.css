@@ -33,4 +33,5 @@ background-color: #FCEAC7; */
 
 img{
     width: 100%;
+    user-select: none;
 }
