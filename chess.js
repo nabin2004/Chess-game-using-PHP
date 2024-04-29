@@ -9,6 +9,23 @@ fetch(url, {
 });
 
 
+function handleClick(event) {
+    console.log("Handle Click");
+    var clickedItem = event.target;
+    var parentItem = clickedItem.parentElement;
+    var highlightedElement = document.querySelector('.highlight');
+
+    if (highlightedElement) {
+        highlightedElement.classList.remove('highlight');
+    }
+    parentItem.classList.add('highlight');
+
+    console.log('Clicked item', clickedItem);
+    console.log('Parent item', parentItem);
+}
+
+
+
 document.addEventListener('keydown', function(event) {
     if (event.ctrlKey && event.key === 's') {
         event.preventDefault();
@@ -36,6 +53,7 @@ function DropHere(event) {
     var draggedItem = document.getElementById(draggedItemId);
     var parentItem = draggedItem.parentElement;
     var dropZone = event.target;
+    
    
 
     if (dropZone === document.getElementById(previousPosition[draggedItemId])) {
@@ -44,6 +62,9 @@ function DropHere(event) {
     if (isValidMove(draggedItemId, dropZone.id, parentItem.id)) {
             dropZone.appendChild(draggedItem);
             draggedItem.style.opacity = '1';
+            var move = new Audio('sounds/move-self.mp3');
+            move.play();
+
     } else {
         returnToPreviousPosition(draggedItem, dropZone);
     }
@@ -115,18 +136,26 @@ function returnToPreviousPosition(draggedItem, dropZoneItem) {
         var draggedImgId = draggedItem.id;
         console.log("dropImgId", dropImgId, "draggedImgId", draggedImgId);
         if ((dropImgId.includes('Black') && draggedImgId.includes('White')) || (dropImgId.includes('White') && draggedImgId.includes('Black'))) {
-            // var childToRemove = document.getElementById(dropImgId);
-            dropZoneItem.parentNode.removeChild(dropZoneItem);
+            if(dropImgId.includes('King')){
+                alert('Check'); // THis is shit code but I am just like thinking and I dont want to remove this coz it will destroy my chain of thought
+                window.location.reload();
+            }
             dropZoneItem.parentNode.appendChild(draggedItem);
+            dropZoneItem.parentNode.removeChild(dropZoneItem);
+            var audio = new Audio('sounds/capture.mp3');
+            audio.play();
             dropZoneItem.style.opacity = '1';
             console.log('Drop ');
+     
         }
     }else{
     // Append the dragged item to its previous position
     var previousZoneId = previousPosition[draggedItem.id];
     document.getElementById(previousZoneId).appendChild(draggedItem);
     draggedItem.style.opacity = '1';
-    console.log('Invalid move');
+    console.log('Invalid moveddd');
+    // var audio = new Audio('sounds/wrong.mp3');
+    // audio.play();
     }
 }
 
@@ -158,6 +187,25 @@ function promotionLogic() {
     //code for promotion logic
 }
 
+function highlightValidMoves(pieceId, parentZoneId) {
+    hightlightLogic();
+    var dropZones = document.querySelectorAll('.drop-zone');
+    dropZones.forEach(function(dropZone) {
+        if (isValidMove(pieceId, dropZone.id, parentZoneId) && isDropZoneEmptyOrSamePlayer(dropZone, pieceId)) {
+            dropZone.classList.add('highlight');
+        }
+    });
+}
+
+// Function to remove highlights from all boxes
 function hightlightLogic() {
-    //code for highlight logic
+    var highlightedBoxes = document.querySelectorAll('.highlight');
+    highlightedBoxes.forEach(function(box) {
+        box.classList.remove('highlight');
+    });
+}
+
+function checkChecker() {
+    //code for check checker
+
 }

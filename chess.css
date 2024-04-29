@@ -1,6 +1,7 @@
 /* background-color: #008B8B;  
 background-color: #FCEAC7; */
 
+
 .square{
     background-color:#FCEAC7;
     width: 70px;
@@ -34,4 +35,9 @@ background-color: #FCEAC7; */
 img{
     width: 100%;
     user-select: none;
+}
+
+.highlight{
+    background-color: #FFD700 !important;
+
 }
