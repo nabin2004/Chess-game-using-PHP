@@ -36,10 +36,12 @@ function startBlackTimer() {
 
 function stopWhiteTimer() {
     clearInterval(whiteInterval);
+    colorBackgroundTurns();
 }
 
 function stopBlackTimer() {
     clearInterval(blackInterval);
+    colorBackgroundTurns();
 }
 
 function startGame() {
@@ -48,12 +50,23 @@ function startGame() {
 
 function switchTurns() {
     isWhiteTurn = !isWhiteTurn;
+    
     if (isWhiteTurn) {
         startWhiteTimer();
         stopBlackTimer();
     }else{
         startBlackTimer();
         stopWhiteTimer();
+    }
+}
+
+function colorBackgroundTurns(){
+    if(isWhiteTurn){
+        document.getElementById('chess').classList.add('black-turn');
+        document.getElementById('chess').classList.remove('white-turn');
+    }else{
+        document.getElementById('chess').classList.add('white-turn');
+        document.getElementById('chess').classList.remove('black-turn');
     }
 }
 
@@ -108,31 +121,50 @@ function DropHere(event) {
     var draggedItem = document.getElementById(draggedItemId);
     var parentItem = draggedItem.parentElement;
     var dropZone = event.target;
-
-    //clear highlights
-
+    
+    // Clear highlights
+    hightlightLogic();
 
     // Check if it's the current player's turn
     if ((isWhiteTurn && draggedItem.id.includes('White')) || (!isWhiteTurn && draggedItem.id.includes('Black'))) {
         console.log('It is not your turn to move.');
         returnToPreviousPosition(draggedItem, dropZone);
-        return; // Stop further execution
+        return; 
     }
 
-    if (dropZone === document.getElementById(previousPosition[draggedItemId])) {
-        return true;
-    }
+    // Remember the previous position for potential revert
+    previousPosition[draggedItemId] = parentItem.id;
 
+    // Perform the move
     if (isValidMove(draggedItemId, dropZone.id, parentItem.id)) {
         dropZone.appendChild(draggedItem);
         draggedItem.style.opacity = '1';
         var move = new Audio('sounds/move-self.mp3');
         move.play();
+
+        // Check for check
+        if (isCheckAfterMove(draggedItem)) {
+            console.log("Check!");
+        }
+
+        // Switch turns
         switchTurns();
     } else {
         returnToPreviousPosition(draggedItem, dropZone);
     }
 }
+
+function isCheckAfterMove(piece) {
+    // Get the king's id of the current player
+    var currentPlayerKingId = isWhiteTurn ? 'WhiteKing' : 'BlackKing';
+
+    // Get the square id where the king is currently placed
+    var currentPlayerKingSquareId = document.querySelector(`#${currentPlayerKingId}`).parentElement.id;
+
+    // Check if the current player's king is under attack after the move
+    return isKingUnderAttack(currentPlayerKingSquareId, currentPlayerKingId);
+}
+
 
 
 function isDropZoneEmptyOrSamePlayer(dropZone, draggedItemId) {
@@ -154,27 +186,37 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
     var str_pieceId = String(pieceId);
     var str_dropZoneId = String(dropZoneId);
 
+    // If the piece is a pawn, check if the move is valid
     if (str_pieceId.includes('pawn')) {
         if ((Number(str_pieceId[str_pieceId.length - 1]) === Number(str_dropZoneId[str_dropZoneId.length - 1]))) {
             return true;
         }
     }
 
+    // If the piece is a rook or queen, check if the move is valid along rows or columns
     if (str_pieceId.endsWith('rook') || str_pieceId.endsWith('Queen')) {
         if (parentZoneId[0] === dropZoneId[0] || parentZoneId[1] === dropZoneId[1]) {
-            return true;
+            // Check if there are any pieces blocking the path
+            if (!isPathBlocked(parentZoneId, dropZoneId)) {
+                return true;
+            }
         }
     }
 
+    // If the piece is a bishop or queen, check if the move is valid diagonally
     if (str_pieceId.endsWith('Bishop') || str_pieceId.endsWith('Queen')) {
         var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
         var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
 
         if (deltaX === deltaY) {
-            return true;
+            // Check if there are any pieces blocking the path
+            if (!isPathBlocked(parentZoneId, dropZoneId)) {
+                return true;
+            }
         }
     }
 
+    // If the piece is a king, check if the move is valid
     if (str_pieceId.endsWith('King')) {
         var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
         var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
@@ -184,6 +226,7 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
         }
     }
 
+    // If the piece is a knight, check if the move is valid
     if (str_pieceId.endsWith('Knight')) {
         var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
         var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
@@ -192,6 +235,8 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
             return true;
         }
     }
+
+    return false;
 }
 
 function returnToPreviousPosition(draggedItem, dropZoneItem) {
@@ -276,7 +321,86 @@ function hightlightLogic() {
     });
 }
 
-function checkChecker() {
-    //code for check checker
 
+function checkChecker() {
+    var squareNames = document.getElementsByClassName('square');
+    var currentPlayerKingId = isWhiteTurn ? 'WhiteKing' : 'BlackKing';
+    var currentPlayerKing = document.getElementById(currentPlayerKingId);
+    var currentPlayerKingSquareId;
+
+    // Find the square where the current player's king is located
+    for (let k = 0; k < squareNames.length; k++) {
+        if (squareNames[k].children.length > 0 && squareNames[k].children[0].id === currentPlayerKingId) {
+            currentPlayerKingSquareId = squareNames[k].id;
+            break;
+        }
+    }
+
+    // Check if the current player's king is under attack
+    if (isKingUnderAttack(currentPlayerKingSquareId, currentPlayerKingId)) {
+        console.log("Check!");
+    }
 }
+
+function isKingUnderAttack(kingSquareId, kingId) {
+    var opposingPlayerIdPrefix = isWhiteTurn ? 'Black' : 'White';
+    var dropZones = document.querySelectorAll('.square');
+    var opposingPlayerPieces = [];
+
+    // Find all opposing player's pieces on the board
+    for (var i = 0; i < dropZones.length; i++) {
+        if (dropZones[i].children.length > 0 && dropZones[i].children[0].id.startsWith(opposingPlayerIdPrefix)) {
+            opposingPlayerPieces.push(dropZones[i].children[0]);
+        }
+    }
+
+    // Check if any opposing player's piece can attack the king
+    for (var j = 0; j < opposingPlayerPieces.length; j++) {
+        var opposingPiece = opposingPlayerPieces[j];
+        var opposingPieceId = opposingPiece.id;
+        var opposingPieceSquareId = opposingPiece.parentElement.id;
+
+        if (isValidMove(opposingPieceId, kingSquareId, opposingPieceSquareId)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function checkAllPossibleMoves(pieceId, parentZoneId) {
+    var dropZones = document.querySelectorAll('.square');
+    console.log(dropZones);
+    var validMoves = [];
+    dropZones.forEach(function(dropZone) {
+        if (isValidMove(pieceId, dropZone.id, parentZoneId) && isDropZoneEmptyOrSamePlayer(dropZone, pieceId)) {
+            validMoves.push(dropZone);
+        }
+    });
+
+    return validMoves;
+}
+
+
+function isPathBlocked(startSquareId, endSquareId) {
+    // Extract coordinates from square IDs
+    var startX = startSquareId.charCodeAt(0);
+    var startY = parseInt(startSquareId[1]);
+    var endX = endSquareId.charCodeAt(0);
+    var endY = parseInt(endSquareId[1]);
+
+    // Determine direction of movement
+    var deltaX = Math.sign(endX - startX);
+    var deltaY = Math.sign(endY - startY);
+
+    // Traverse the path between the two squares and check for pieces
+    for (var x = startX + deltaX, y = startY + deltaY; x !== endX || y !== endY; x += deltaX, y += deltaY) {
+        var currentSquare = document.getElementById(String.fromCharCode(x) + y);
+        if (currentSquare.children.length > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+

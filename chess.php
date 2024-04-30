@@ -9,7 +9,8 @@
 <script defer="" src="chess.js"></script>
 </head>
 <body>
-<div class="chess">
+
+<div class="chess" id='chess'>
 
 <div class="timer">
         <div id="white-timer"> 00:00 </div>

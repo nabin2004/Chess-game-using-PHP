@@ -82,3 +82,11 @@ img{
     background-color: #FFD700  !important;
 
 }
+
+.black-turn{
+    background-color: black;
+}
+
+.white-turn{
+    background-color: white;
+}
