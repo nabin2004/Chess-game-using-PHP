@@ -17,6 +17,18 @@
         <div id="black-timer"> 00:00 </div>
     </div>
 
+<?php
+session_start();
+?>
+
+<?php
+if(!isset($_SESSION['username'])) {
+    header("Location: index.php");
+    exit();
+}
+?>
+
+
 <div class="main_container">
 <!--File is a column in chess and chess player call column as FILE-->
 <!-- This is file A -->
