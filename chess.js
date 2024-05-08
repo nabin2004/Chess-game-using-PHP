@@ -21,6 +21,7 @@ function updateTimer(timer, elementId){
 }
 
 function startWhiteTimer() {
+    colorBackgroundTurns();
     whiteInterval = setInterval(() => {
         whiteTimer++;
         updateTimer(whiteTimer, 'white-timer');
@@ -28,6 +29,7 @@ function startWhiteTimer() {
 }
 
 function startBlackTimer() {
+    colorBackgroundTurns();
     blackInterval = setInterval(() => {
         blackTimer++;
         updateTimer(blackTimer, 'black-timer');
@@ -36,12 +38,11 @@ function startBlackTimer() {
 
 function stopWhiteTimer() {
     clearInterval(whiteInterval);
-    colorBackgroundTurns();
+    
 }
 
 function stopBlackTimer() {
     clearInterval(blackInterval);
-    colorBackgroundTurns();
 }
 
 function startGame() {
@@ -81,9 +82,9 @@ function handleClick(event) {
     var highlightedElement = document.querySelector('.highlight');
 
     if (highlightedElement) {
-        highlightedElement.classList.remove('highlight');
+        highlightedElement.classList.remove('');
     }
-    parentItem.classList.add('highlight');
+    parentItem.classList.add('');
 
     console.log('Clicked item', clickedItem);
     console.log('Parent item', parentItem);
@@ -121,15 +122,13 @@ function DropHere(event) {
     var draggedItem = document.getElementById(draggedItemId);
     var parentItem = draggedItem.parentElement;
     var dropZone = event.target;
-    
-    // Clear highlights
-    hightlightLogic();
+ 
+    // hightlightLogic();
 
     // Check if it's the current player's turn
-    if ((isWhiteTurn && draggedItem.id.includes('White')) || (!isWhiteTurn && draggedItem.id.includes('Black'))) {
-        console.log('It is not your turn to move.');
+    if ((isWhiteTurn && draggedItemId.includes('Black')) || (!isWhiteTurn && draggedItemId.includes('White'))) {
         returnToPreviousPosition(draggedItem, dropZone);
-        return; 
+        return false;
     }
 
     // Remember the previous position for potential revert
@@ -139,6 +138,7 @@ function DropHere(event) {
     if (isValidMove(draggedItemId, dropZone.id, parentItem.id)) {
         dropZone.appendChild(draggedItem);
         draggedItem.style.opacity = '1';
+        switchTurns()
         var move = new Audio('sounds/move-self.mp3');
         move.play();
 
@@ -148,17 +148,14 @@ function DropHere(event) {
         }
 
         // Switch turns
-        switchTurns();
+        // switchTurns();
     } else {
         returnToPreviousPosition(draggedItem, dropZone);
     }
 }
 
 function isCheckAfterMove(piece) {
-    // Get the king's id of the current player
     var currentPlayerKingId = isWhiteTurn ? 'WhiteKing' : 'BlackKing';
-
-    // Get the square id where the king is currently placed
     var currentPlayerKingSquareId = document.querySelector(`#${currentPlayerKingId}`).parentElement.id;
 
     // Check if the current player's king is under attack after the move
@@ -172,6 +169,7 @@ function isDropZoneEmptyOrSamePlayer(dropZone, draggedItemId) {
         var occupyingPieceId = dropZone.children[0].id;
         if ((draggedItemId.includes('White') && occupyingPieceId.includes('White')) || 
             (draggedItemId.includes('Black') && occupyingPieceId.includes('Black'))) {
+               
             return true;
         } else {
             return false;
@@ -189,16 +187,20 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
     // If the piece is a pawn, check if the move is valid
     if (str_pieceId.includes('pawn')) {
         if ((Number(str_pieceId[str_pieceId.length - 1]) === Number(str_dropZoneId[str_dropZoneId.length - 1]))) {
+        
             return true;
+        }else{
+            return false;
         }
     }
 
     // If the piece is a rook or queen, check if the move is valid along rows or columns
     if (str_pieceId.endsWith('rook') || str_pieceId.endsWith('Queen')) {
         if (parentZoneId[0] === dropZoneId[0] || parentZoneId[1] === dropZoneId[1]) {
-            // Check if there are any pieces blocking the path
             if (!isPathBlocked(parentZoneId, dropZoneId)) {
                 return true;
+            }else{
+                return false
             }
         }
     }
@@ -234,6 +236,8 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
         if ((deltaX === 2 && deltaY === 1) || (deltaX === 1 && deltaY === 2)) {
             return true;
         }
+    }else{
+        return false;
     }
 
     return false;
@@ -401,6 +405,7 @@ function isPathBlocked(startSquareId, endSquareId) {
     }
     return false;
 }
+
 
 
 
