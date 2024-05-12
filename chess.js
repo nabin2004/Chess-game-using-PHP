@@ -262,6 +262,8 @@ function deathLogic(draggedItem, dropZoneItem) {
             audio.play();
             draggedItem.style.opacity = '1';
         }
+    }
+}
 
 
 function returnToPreviousPosition(draggedItem, dropZoneItem) {
@@ -295,10 +297,6 @@ function checkDeathLogic(draggedItem, dropZone, parentItem) {
     } else {
         console.log('Drop zone does not contain an image');
     }
-    console.log('dropZone', dropZone);
-    console.log('parentItem', parentItem);
-    console.log('draggedItem', draggedItem);
-    console.log('death logic end');
 }
 
 
@@ -359,11 +357,6 @@ function checkChecker() {
             currentPlayerKingSquareId = squareNames[k].id;
             break;
         }
-    }
-
-    // Check if the current player's king is under attack
-    if (isKingUnderAttack(currentPlayerKingSquareId, currentPlayerKingId)) {
-        console.log("Check!");
     }
 }
 
@@ -496,7 +489,6 @@ function isCheckMate(draggedItem,dropZone ,parentItem) {
     if(draggedItem.id.includes('Whitepawn') && kingId.includes('White')){
         
     }
-
 }
 
 // dropImgId
