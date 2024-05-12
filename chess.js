@@ -1,4 +1,4 @@
-var previousPosition = {};
+let previousPosition = {};
 
 url = 'http://localhost/Chess/Chess-game-using-PHP/chess.php';
 
@@ -128,6 +128,7 @@ function DropHere(event) {
     // Check if it's the current player's turn
     if ((isWhiteTurn && draggedItemId.includes('Black')) || (!isWhiteTurn && draggedItemId.includes('White'))) {
         returnToPreviousPosition(draggedItem, dropZone);
+        deathLogic(draggedItem, dropZoneItem)
         return false;
     }
 
@@ -136,6 +137,7 @@ function DropHere(event) {
 
     // Perform the move
     if (isValidMove(draggedItemId, dropZone.id, parentItem.id)) {
+        isCheckMate(draggedItem,dropZone ,parentItem);
         dropZone.appendChild(draggedItem);
         draggedItem.style.opacity = '1';
         switchTurns()
@@ -148,9 +150,10 @@ function DropHere(event) {
         }
 
         // Switch turns
-        // switchTurns();
-    } else {
-        returnToPreviousPosition(draggedItem, dropZone);
+        switchTurns();
+    }
+    else {
+        return returnToPreviousPosition(draggedItem, dropZone);
     }
 }
 
@@ -164,20 +167,20 @@ function isCheckAfterMove(piece) {
 
 
 
-function isDropZoneEmptyOrSamePlayer(dropZone, draggedItemId) {
-    if (dropZone && dropZone.children.length > 0) {
-        var occupyingPieceId = dropZone.children[0].id;
-        if ((draggedItemId.includes('White') && occupyingPieceId.includes('White')) || 
-            (draggedItemId.includes('Black') && occupyingPieceId.includes('Black'))) {
+// function isDropZoneEmptyOrSamePlayer(dropZone, draggedItemId) {
+//     if (dropZone && dropZone.children.length > 0) {
+//         var occupyingPieceId = dropZone.children[0].id;
+//         if ((draggedItemId.includes('White') && occupyingPieceId.includes('White')) || 
+//             (draggedItemId.includes('Black') && occupyingPieceId.includes('Black'))) {
                
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return true;
-    }
-}
+//             return true;
+//         } else {
+//             return false;
+//         }
+//     } else {
+//         return true;
+//     }
+// }
 
 
 function isValidMove(pieceId, dropZoneId, parentZoneId) {
@@ -195,7 +198,7 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
     }
 
     // If the piece is a rook or queen, check if the move is valid along rows or columns
-    if (str_pieceId.endsWith('rook') || str_pieceId.endsWith('Queen')) {
+    else if (str_pieceId.endsWith('rook') || str_pieceId.endsWith('Queen')) {
         if (parentZoneId[0] === dropZoneId[0] || parentZoneId[1] === dropZoneId[1]) {
             if (!isPathBlocked(parentZoneId, dropZoneId)) {
                 return true;
@@ -206,7 +209,7 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
     }
 
     // If the piece is a bishop or queen, check if the move is valid diagonally
-    if (str_pieceId.endsWith('Bishop') || str_pieceId.endsWith('Queen')) {
+    else if (str_pieceId.endsWith('Bishop') || str_pieceId.endsWith('Queen')) {
         var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
         var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
 
@@ -219,7 +222,7 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
     }
 
     // If the piece is a king, check if the move is valid
-    if (str_pieceId.endsWith('King')) {
+    else if (str_pieceId.endsWith('King')) {
         var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
         var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
 
@@ -229,7 +232,7 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
     }
 
     // If the piece is a knight, check if the move is valid
-    if (str_pieceId.endsWith('Knight')) {
+    else if (str_pieceId.endsWith('Knight')) {
         var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
         var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
 
@@ -242,6 +245,24 @@ function isValidMove(pieceId, dropZoneId, parentZoneId) {
 
     return false;
 }
+
+function deathLogic(draggedItem, dropZoneItem) {
+    if (dropZoneItem) {
+        var dropImgId = dropZoneItem.id;
+        var draggedImgId = draggedItem.id;
+        if ((dropImgId.includes('Black') && draggedImgId.includes('White')) || 
+            (dropImgId.includes('White') && draggedImgId.includes('Black'))) {
+            if(dropImgId.includes('King')){
+                alert('Check');
+                window.location.reload();
+            }
+            dropZoneItem.parentNode.appendChild(draggedItem);
+            dropZoneItem.parentNode.removeChild(dropZoneItem);
+            var audio = new Audio('sounds/capture.mp3');
+            audio.play();
+            draggedItem.style.opacity = '1';
+        }
+
 
 function returnToPreviousPosition(draggedItem, dropZoneItem) {
     if (dropZoneItem) {
@@ -371,18 +392,18 @@ function isKingUnderAttack(kingSquareId, kingId) {
     return false;
 }
 
-function checkAllPossibleMoves(pieceId, parentZoneId) {
-    var dropZones = document.querySelectorAll('.square');
-    console.log(dropZones);
-    var validMoves = [];
-    dropZones.forEach(function(dropZone) {
-        if (isValidMove(pieceId, dropZone.id, parentZoneId) && isDropZoneEmptyOrSamePlayer(dropZone, pieceId)) {
-            validMoves.push(dropZone);
-        }
-    });
+// function checkAllPossibleMoves(pieceId, parentZoneId) {
+//     var dropZones = document.querySelectorAll('.square');
+//     console.log(dropZones);
+//     var validMoves = [];
+//     dropZones.forEach(function(dropZone) {
+//         if (isValidMove(pieceId, dropZone.id, parentZoneId) && isDropZoneEmptyOrSamePlayer(dropZone, pieceId)) {
+//             validMoves.push(dropZone);
+//         }
+//     });
 
-    return validMoves;
-}
+//     return validMoves;
+// }
 
 
 function isPathBlocked(startSquareId, endSquareId) {
@@ -406,6 +427,77 @@ function isPathBlocked(startSquareId, endSquareId) {
     return false;
 }
 
+function checkForCheckMate() {
+        var str_pieceId = String(pieceId);
+        var str_dropZoneId = String(dropZoneId);
+    
+        // If the piece is a pawn, check if the move is valid
+        if (str_pieceId.includes('pawn')) {
+            if ((Number(str_pieceId[str_pieceId.length - 1]) === Number(str_dropZoneId[str_dropZoneId.length - 1]))) {
+            
+                return true;
+            }else{
+                return false;
+            }
+        }
+    
+        // If the piece is a rook or queen, check if the move is valid along rows or columns
+        if (str_pieceId.endsWith('rook') || str_pieceId.endsWith('Queen')) {
+            if (parentZoneId[0] === dropZoneId[0] || parentZoneId[1] === dropZoneId[1]) {
+                if (!isPathBlocked(parentZoneId, dropZoneId)) {
+                    return true;
+                }else{
+                    return false
+                }
+            }
+        }
+    
+        // If the piece is a bishop or queen, check if the move is valid diagonally
+        if (str_pieceId.endsWith('Bishop') || str_pieceId.endsWith('Queen')) {
+            var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
+            var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
+    
+            if (deltaX === deltaY) {
+                // Check if there are any pieces blocking the path
+                if (!isPathBlocked(parentZoneId, dropZoneId)) {
+                    return true;
+                }
+            }
+        }
+    
+        // If the piece is a king, check if the move is valid
+        if (str_pieceId.endsWith('King')) {
+            var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
+            var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
+    
+            if (deltaX <= 1 && deltaY <= 1) {
+                return true;
+            }
+        }
+    
+        // If the piece is a knight, check if the move is valid
+        if (str_pieceId.endsWith('Knight')) {
+            var deltaX = Math.abs(parentZoneId.charCodeAt(0) - dropZoneId.charCodeAt(0));
+            var deltaY = Math.abs(parseInt(parentZoneId[1]) - parseInt(dropZoneId[1]));
+    
+            if ((deltaX === 2 && deltaY === 1) || (deltaX === 1 && deltaY === 2)) {
+                return true;
+            }
+        }else{
+            return false;
+        }
+        return false;
+}
 
+function isCheckMate(draggedItem,dropZone ,parentItem) {
+    var kingId = isWhiteTurn ? 'WhiteKing' : 'BlackKing';
+    var kingSquare = document.getElementById(kingId).parentElement;
+    var kingPosition = kingSquare.id;
+    if(draggedItem.id.includes('Whitepawn') && kingId.includes('White')){
+        
+    }
 
+}
 
+// dropImgId
+// draggedImgId
